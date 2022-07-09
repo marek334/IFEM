@@ -1,7 +1,7 @@
-/*To use this program, at first one has to generate horizontal position of nodes on the Earth's surface using "octahedronQuadSphere_duplicates.m": . 
+/*To use this program, at first one has to generate horizontal position of nodes on the Earth's surface using "octahedronQuadSphere_duplicates.m": https://github.com/marek334/IFEM. 
 In case of computations on the real Earth surface one has to generate and add ellipsoidal heights.
 Finally, for these nodes one has to generate boundary condition - the surface gravity disturbances using, e.g. "GrafLab": https://github.com/blazej-bucha/graflab-cookbook 
-Examples of input files can be found at: */
+Examples of input files can be found at: https://github.com/marek334/IFEM */
 
 
 #include <string.h>
@@ -16,8 +16,10 @@ Examples of input files can be found at: */
 #include <sys/mman.h>
 #include <stdint.h>
 
-// mpicc -Ofast -ffast-math IFEM_parallel.c -o paralel_INF_Triang -lm -lnuma -fopenmp
-// mpiexec -machinefile machines -genv OMP_NUM_THREADS 4 -bind-to socket -map-by socket ./paralel_INF_Triang -env OMP_PROC_BIND true > OUT_paralel_TRIAN.dat &
+/*
+mpicc -Ofast -ffast-math IFEM_parallel.c -o paralel_INF_Triang -lm -lnuma -fopenmp
+mpiexec -n 8 -genv OMP_NUM_THREADS 4 -bind-to socket -map-by socket ./paralel_INF_Triang -env OMP_PROC_BIND true > OUT_paralel_TRIAN.dat &
+*/
 
 /*-------------SET-----------------*/
 
@@ -191,13 +193,13 @@ void trojA(int64_t i,int64_t j, int64_t k, int64_t ind)
 	double Jacobi[3][3], A[3][12], K[12][12];
 					
 	X1=node[ind].x;    X2=node[ind+dwe].x; 	 X3=node[ind+dsn].x;
-    X4=node[ind+1].x;  X5=node[ind+dwe+1].x; X6=node[ind+dsn+1].x;
+    	X4=node[ind+1].x;  X5=node[ind+dwe+1].x; X6=node[ind+dsn+1].x;
    
-    Y1=node[ind].y;    Y2=node[ind+dwe].y; 	Y3=node[ind+dsn].y;
-    Y4=node[ind+1].y;    Y5=node[ind+dwe+1].y; 	Y6=node[ind+dsn+1].y;
+    	Y1=node[ind].y;    Y2=node[ind+dwe].y; 	Y3=node[ind+dsn].y;
+    	Y4=node[ind+1].y;    Y5=node[ind+dwe+1].y; 	Y6=node[ind+dsn+1].y;
     
 	Z1=node[ind].z;    Z2=node[ind+dwe].z; 	Z3=node[ind+dsn].z;
-    Z4=node[ind+1].z;    Z5=node[ind+dwe+1].z; 	Z6=node[ind+dsn+1].z;
+    	Z4=node[ind+1].z;    Z5=node[ind+dwe+1].z; 	Z6=node[ind+dsn+1].z;
 								
 	for (ii=0;ii<GaussPoints;ii++)
 		for (jj=0;jj<GaussPoints;jj++)
@@ -1614,8 +1616,6 @@ void trojBcA(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 	double normal[3],tangent1[3],tangent2[3], svektor[3],node_mean[3];
 	double face,tmp,dltang1,dltang2,alpha,beta,gamma;
 			
-			//First triangle
-			
 			tangent1[0]=node[ind+dwe].x-node[ind].x;
 			tangent1[1]=node[ind+dwe].y-node[ind].y;
 			tangent1[2]=node[ind+dwe].z-node[ind].z;
@@ -1639,8 +1639,6 @@ void trojBcA(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			dltang2=normvekt(tangent2);	
 			for(ij=0;ij<3;ij++)
 				tangent2[ij]=tangent2[ij]/dltang2;
-			
-			//Node one
 			
 			node_mean[0]=node[ind].x;
 			node_mean[1]=node[ind].y;
@@ -1666,8 +1664,6 @@ void trojBcA(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index+9]+= (beta/alpha)*face*(1.0/dltang1) + (gamma/alpha)*face*(0.0/dltang2);
 			MC[index+3]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
 			
-			//Node two
-			
 			node_mean[0]=node[ind+dwe].x;
 			node_mean[1]=node[ind+dwe].y;
 			node_mean[2]=node[ind+dwe].z;
@@ -1691,8 +1687,6 @@ void trojBcA(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index-9]+= (beta/alpha)*face*(-1.0/dltang1) + (gamma/alpha)*face*(-1.0/dltang2);
 			MC[index]+= (beta/alpha)*face*(1.0/dltang1) + (gamma/alpha)*face*(0.0/dltang2);
 			MC[index-6]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
-
-			//Node three
 			
 			node_mean[0]=node[ind+dsn].x;
 			node_mean[1]=node[ind+dsn].y;
@@ -1717,9 +1711,7 @@ void trojBcA(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index-3]+= (beta/alpha)*face*(-1.0/dltang1) + (gamma/alpha)*face*(-1.0/dltang2);
 			MC[index+6]+= (beta/alpha)*face*(1.0/dltang1) + (gamma/alpha)*face*(0.0/dltang2);
 			MC[index]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
-
-			//Second triangle
-			
+		
 			tangent2[0]=node[ind+dwe].x-node[ind+dwe+dsn].x;
 			tangent2[1]=node[ind+dwe].y-node[ind+dwe+dsn].y;
 			tangent2[2]=node[ind+dwe].z-node[ind+dwe+dsn].z;
@@ -1743,8 +1735,7 @@ void trojBcA(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			dltang2=normvekt(tangent2);		
 			for(ij=0;ij<3;ij++)
 				tangent2[ij]=tangent2[ij]/dltang2;
-
-			//Node one			
+			
 			node_mean[0]=node[ind+dwe+dsn].x;
 			node_mean[1]=node[ind+dwe+dsn].y;
 			node_mean[2]=node[ind+dwe+dsn].z;
@@ -1768,8 +1759,7 @@ void trojBcA(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index]+= (beta/alpha)*face*(-1.0/dltang1) + (gamma/alpha)*face*(-1.0/dltang2);
 			MC[index-9]+= (beta/alpha)*face*(1.0/dltang1) + (gamma/alpha)*face*(0.0/dltang2);
 			MC[index-3]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
-			
-			//Node two
+
 			node_mean[0]=node[ind+dsn].x;
 			node_mean[1]=node[ind+dsn].y;
 			node_mean[2]=node[ind+dsn].z;
@@ -1794,7 +1784,6 @@ void trojBcA(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index]+= (beta/alpha)*face*(1.0/dltang1) + (gamma/alpha)*face*(0.0/dltang2);
 			MC[index+6]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
 
-			//Node three
 			node_mean[0]=node[ind+dwe].x;
 			node_mean[1]=node[ind+dwe].y;
 			node_mean[2]=node[ind+dwe].z;
@@ -1826,7 +1815,6 @@ void trojBcB(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 	double dlXb[3],dlXu[3],dlYl[3],dlYr[3],normal[3],tangent1[3],tangent2[3],svektor[3],node_mean[3];
 	double face,tmp,dltang1,dltang2,alpha,beta,gamma;
 					
-			//First triangle
 			tangent1[0]=node[ind].x-node[ind+dwe].x;
 			tangent1[1]=node[ind].y-node[ind+dwe].y;
 			tangent1[2]=node[ind].z-node[ind+dwe].z;
@@ -1850,8 +1838,7 @@ void trojBcB(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			dltang2=normvekt(tangent2);		
 			for(ij=0;ij<3;ij++)
 				tangent2[ij]=tangent2[ij]/dltang2;
-			
-			//Node one
+	
 			node_mean[0]=node[ind].x;
 			node_mean[1]=node[ind].y;
 			node_mean[2]=node[ind].z;
@@ -1874,8 +1861,7 @@ void trojBcB(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index]+= (beta/alpha)*face*(1.0/dltang1) + (gamma/alpha)*face*(0.0/dltang2);
 			MC[index+9]+= (beta/alpha)*face*(-1.0/dltang1) + (gamma/alpha)*face*(-1.0/dltang2);
 			MC[index+12]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
-			
-			//Node two
+		
 			node_mean[0]=node[ind+dwe].x;
 			node_mean[1]=node[ind+dwe].y;
 			node_mean[2]=node[ind+dwe].z;
@@ -1899,8 +1885,7 @@ void trojBcB(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index-9]+= (beta/alpha)*face*(1.0/dltang1) + (gamma/alpha)*face*(0.0/dltang2);
 			MC[index]+= (beta/alpha)*face*(-1.0/dltang1) + (gamma/alpha)*face*(-1.0/dltang2);
 			MC[index+3]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
-			
-			//Node three
+
 			node_mean[0]=node[ind+dwe+dsn].x;
 			node_mean[1]=node[ind+dwe+dsn].y;
 			node_mean[2]=node[ind+dwe+dsn].z;
@@ -1949,8 +1934,7 @@ void trojBcB(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			dltang2=normvekt(tangent2);	
 			for(ij=0;ij<3;ij++)
 				tangent2[ij]=tangent2[ij]/dltang2;
-			
-			//Node one
+	
 			node_mean[0]=node[ind+dwe+dsn].x;
 			node_mean[1]=node[ind+dwe+dsn].y;
 			node_mean[2]=node[ind+dwe+dsn].z;
@@ -1975,7 +1959,6 @@ void trojBcB(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index-9]+= (beta/alpha)*face*(-1.0/dltang1) + (gamma/alpha)*face*(-1.0/dltang2);
 			MC[index-12]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
 
-			//Node two
 			node_mean[0]=node[ind+dsn].x;
 			node_mean[1]=node[ind+dsn].y;
 			node_mean[2]=node[ind+dsn].z;
@@ -2000,7 +1983,6 @@ void trojBcB(int64_t i,int64_t j, int64_t ind, int64_t iglobal, double *dg)
 			MC[index]+= (beta/alpha)*face*(-1.0/dltang1) + (gamma/alpha)*face*(-1.0/dltang2);
 			MC[index-3]+= (beta/alpha)*face*(0.0/dltang1) + (gamma/alpha)*face*(1.0/dltang2);
 
-			//Node three
 			node_mean[0]=node[ind].x;
 			node_mean[1]=node[ind].y;
 			node_mean[2]=node[ind].z;

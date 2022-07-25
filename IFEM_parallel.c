@@ -1,9 +1,3 @@
-/*To use this program, at first one has to generate horizontal position of nodes on the Earth's surface using "octahedronQuadSphere_duplicates.m": https://github.com/marek334/IFEM. 
-In case of computations on the real Earth surface one has to generate and add ellipsoidal heights.
-Finally, for these nodes one has to generate boundary condition - the surface gravity disturbances using, e.g. "GrafLab": https://github.com/blazej-bucha/graflab-cookbook 
-Examples of input files can be found at: https://github.com/marek334/IFEM */
-
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,18 +17,18 @@ mpiexec -n 8 -genv OMP_NUM_THREADS 4 -bind-to socket -map-by socket ./paralel_IN
 
 /*-------------SET-----------------*/
 
-#define OPEN_file_dg "quad_ellipsoid_WGS84_BLH_8_dg.dat" /*list of values of gravity disturbances in mGal*/
-#define OPEN_file_H "quad_ellipsoid_WGS84_BLH_8.dat" /*list of coordinates of nodes on the bottom boundary in order: B L H*/
-#define WRITE_prefix "WGS84_BLH_8_triang_inf1"
+#define OPEN_file_dg "quad_ellipsoid_WGS84_BLH_7_dg.dat"
+#define OPEN_file_H "quad_ellipsoid_WGS84_BLH_7.dat"
+#define OPEN_write "WGS84_BLH_7_triang_inf"
 
-#define Ne1 1024	        /*number of nodes in L direction according to mesh-level in Matlab code: octahedronQuadSphere_duplicates.m*/
-#define Ne2 256		    	/*number of nodes in B direction according to mesh-level in Matlab code: octahedronQuadSphere_duplicates.m*/
-#define Ne3	126  			/*number of nodes in H direction*/
+#define Ne1 512	        	/*number of elements in L direction*/
+#define Ne2 128		    	/*number of elements in B direction*/
+#define Ne3 57      		/*number of elements in H direction*/
 
 #define Hu 6000000.0    	/*height of finite-element computational domain*/
 
 #define Hsat 200000.0 		/*writing the results above Earth's surface - chosen height */
-#define Nu 32     			/*writing the results above Earth's surface - number of nodes H directionfor chosen height*/
+#define Nu 5     		/*writing the results above Earth's surface - number of nodes H directionfor chosen height*/
 
 #define GaussPoints 2		 /*number of Gauss integration points - finite elements*/
 #define GaussPointm 2		 /*number of Gauss integration points - infinite elements*/
@@ -45,7 +39,7 @@ double Wim[2]={1.0000000000000000, 1.0000000000000000};
 double Xim[2]={-0.5773502691896257, 0.5773502691896257};
 
 /*Parameters for Solver*/
-#define pertol 50 			/*number of itterations for writing residuum*/
+#define pertol 50 		/*number of itterations for writing residuum*/
 #define pertol_write 1000 	/*number of itterations for writing results*/
 
 #define tol 1.0e-5      	/*stopping criterion*/
@@ -53,7 +47,7 @@ double Xim[2]={-0.5773502691896257, 0.5773502691896257};
 
 /*---------------------------------*/
 #define RAD M_PI/180
-#define a 6378137.0				/*WGS84 - the semi-major axis */
+#define a 6378137.0		/*WGS84 - the semi-major axis */
 #define e2 0.006694380004260827 /*WGS84 - the first eccentricity squared*/ 
 
 struct Nodes
